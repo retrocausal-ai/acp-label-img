@@ -2230,13 +2230,19 @@ def auto_update_from_git():
             labelimg_dst = os.path.join(site_packages, 'labelImg')
             libs_dst = os.path.join(site_packages, 'libs')
 
+            files_updated = False
+
             # Update labelImg
             for file in os.listdir(labelimg_src):
                 if file != '__pycache__':
                     src_file = os.path.join(labelimg_src, file)
                     dst_file = os.path.join(labelimg_dst, file)
                     if os.path.isfile(src_file):
-                        shutil.copy2(src_file, dst_file)
+                        # Check if file is different before copying
+                        if not os.path.exists(dst_file) or \
+                           os.path.getsize(src_file) != os.path.getsize(dst_file):
+                            shutil.copy2(src_file, dst_file)
+                            files_updated = True
 
             # Update libs
             for file in os.listdir(libs_src):
@@ -2244,14 +2250,22 @@ def auto_update_from_git():
                     src_file = os.path.join(libs_src, file)
                     dst_file = os.path.join(libs_dst, file)
                     if os.path.isfile(src_file):
-                        shutil.copy2(src_file, dst_file)
+                        # Check if file is different before copying
+                        if not os.path.exists(dst_file) or \
+                           os.path.getsize(src_file) != os.path.getsize(dst_file):
+                            shutil.copy2(src_file, dst_file)
+                            files_updated = True
 
-            print("✓ Updated to latest version")
+            # Show appropriate message
+            if files_updated:
+                print("✓ Updated to latest version")
+            else:
+                print("Already up to date")
 
             # Clean up
             shutil.rmtree(temp_dir, ignore_errors=True)
         else:
-            print("Already up to date")
+            print("Update failed, using current version")
 
         print("Starting labelImg...\n")
 
