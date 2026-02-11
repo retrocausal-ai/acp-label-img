@@ -2232,8 +2232,9 @@ def auto_update_from_git():
     try:
         print("Checking for updates...")
 
-        # Get the repository directory (parent of parent of this file)
-        repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        # Get the repository directory - it's in site-packages/acp-labelimg-repo
+        site_packages = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        repo_dir = os.path.join(site_packages, 'acp-labelimg-repo')
 
         # Run git pull origin main
         result = subprocess.run(
