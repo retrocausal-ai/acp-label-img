@@ -2208,30 +2208,50 @@ def get_main_app(argv=[]):
 
 def auto_update_from_git():
     """Pull latest changes from git before starting the application"""
+    import tempfile
     try:
-        # Get the directory of the labelImg package
-        labelimg_dir = os.path.dirname(os.path.abspath(__file__))
-        libs_dir = os.path.join(os.path.dirname(labelimg_dir), 'libs')
-
         print("Checking for updates...")
 
-        # Update labelImg package
-        result = subprocess.run(['git', '-C', labelimg_dir, 'pull'],
-                              capture_output=True, text=True, timeout=10)
-        if result.returncode == 0:
-            if "Already up to date" not in result.stdout:
-                print(f"labelImg updated: {result.stdout.strip()}")
-            else:
-                print("labelImg is up to date")
+        # Get the site-packages directory
+        site_packages = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        temp_dir = tempfile.mkdtemp()
+        repo_url = "https://github.com/retrocausal-ai/acp-label-img.git"
 
-        # Update libs package
-        result = subprocess.run(['git', '-C', libs_dir, 'pull'],
-                              capture_output=True, text=True, timeout=10)
+        # Clone the repo to temp directory
+        result = subprocess.run(
+            ['git', 'clone', '--depth', '1', repo_url, temp_dir],
+            capture_output=True, text=True, timeout=30
+        )
+
         if result.returncode == 0:
-            if "Already up to date" not in result.stdout:
-                print(f"libs updated: {result.stdout.strip()}")
-            else:
-                print("libs is up to date")
+            # Copy updated files to site-packages
+            labelimg_src = os.path.join(temp_dir, 'labelImg')
+            libs_src = os.path.join(temp_dir, 'libs')
+            labelimg_dst = os.path.join(site_packages, 'labelImg')
+            libs_dst = os.path.join(site_packages, 'libs')
+
+            # Update labelImg
+            for file in os.listdir(labelimg_src):
+                if file != '__pycache__':
+                    src_file = os.path.join(labelimg_src, file)
+                    dst_file = os.path.join(labelimg_dst, file)
+                    if os.path.isfile(src_file):
+                        shutil.copy2(src_file, dst_file)
+
+            # Update libs
+            for file in os.listdir(libs_src):
+                if file != '__pycache__':
+                    src_file = os.path.join(libs_src, file)
+                    dst_file = os.path.join(libs_dst, file)
+                    if os.path.isfile(src_file):
+                        shutil.copy2(src_file, dst_file)
+
+            print("✓ Updated to latest version")
+
+            # Clean up
+            shutil.rmtree(temp_dir, ignore_errors=True)
+        else:
+            print("Already up to date")
 
         print("Starting labelImg...\n")
 
