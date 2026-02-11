@@ -2251,6 +2251,11 @@ def auto_update_from_git():
                 print("Already up to date")
             else:
                 print("✓ Updated to latest version")
+                # Clear Python bytecode cache to ensure fresh code is used
+                for root, dirs, files in os.walk(repo_dir):
+                    if '__pycache__' in dirs:
+                        pycache_path = os.path.join(root, '__pycache__')
+                        shutil.rmtree(pycache_path, ignore_errors=True)
         else:
             print(f"Update failed: {result.stderr.strip()}")
 
