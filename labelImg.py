@@ -2227,51 +2227,8 @@ def get_main_app(argv=[]):
     return app, win
 
 
-def auto_update_from_git():
-    """Pull latest changes from git before starting the application"""
-    try:
-        print("Checking for updates...")
-
-        # Get the repository directory (where this file is located)
-        repo_dir = os.path.dirname(os.path.abspath(__file__))
-
-        # Run git pull origin main
-        result = subprocess.run(
-            ['git', 'pull', 'origin', 'main'],
-            cwd=repo_dir,
-            capture_output=True,
-            text=True,
-            timeout=10
-        )
-
-        if result.returncode == 0:
-            # Check if updates were pulled
-            output = result.stdout.strip()
-            if "Already up to date" in output or "Already up-to-date" in output:
-                print("Already up to date")
-            else:
-                print("✓ Updated to latest version")
-                # Clear Python bytecode cache to ensure fresh code is used
-                for root, dirs, files in os.walk(repo_dir):
-                    if '__pycache__' in dirs:
-                        pycache_path = os.path.join(root, '__pycache__')
-                        shutil.rmtree(pycache_path, ignore_errors=True)
-        else:
-            print(f"Update failed: {result.stderr.strip()}")
-
-        print("Starting labelImg...\n")
-
-    except subprocess.TimeoutExpired:
-        print("Update check timed out, starting application anyway...")
-    except FileNotFoundError:
-        print("Git not found, skipping auto-update...")
-    except Exception as e:
-        print(f"Update check failed: {e}, starting application anyway...")
-
 def main():
     """construct main app and run it"""
-    # Auto-update now handled by launcher script before Python starts
-    # auto_update_from_git()
 
     app, _win = get_main_app(sys.argv)
     return app.exec_()
