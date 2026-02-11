@@ -2270,8 +2270,8 @@ def auto_update_from_git():
 
 def main():
     """construct main app and run it"""
-    # Auto-update from git before starting
-    auto_update_from_git()
+    # Auto-update now handled by launcher script before Python starts
+    # auto_update_from_git()
 
     app, _win = get_main_app(sys.argv)
     return app.exec_()
