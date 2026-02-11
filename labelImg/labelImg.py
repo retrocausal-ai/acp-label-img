@@ -2227,47 +2227,8 @@ def get_main_app(argv=[]):
     return app, win
 
 
-def auto_update_from_git():
-    """Pull latest changes from git before starting the application"""
-    try:
-        print("Checking for updates...")
-
-        # Get the repository directory - it's in site-packages/acp-labelimg-repo
-        site_packages = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        repo_dir = os.path.join(site_packages, 'acp-labelimg-repo')
-
-        # Run git pull origin main
-        result = subprocess.run(
-            ['git', 'pull', 'origin', 'main'],
-            cwd=repo_dir,
-            capture_output=True,
-            text=True,
-            timeout=10
-        )
-
-        if result.returncode == 0:
-            # Check if updates were pulled
-            output = result.stdout.strip()
-            if "Already up to date" in output or "Already up-to-date" in output:
-                print("Already up to date")
-            else:
-                print("✓ Updated to latest version")
-        else:
-            print(f"Update failed: {result.stderr.strip()}")
-
-        print("Starting labelImg...\n")
-
-    except subprocess.TimeoutExpired:
-        print("Update check timed out, starting application anyway...")
-    except FileNotFoundError:
-        print("Git not found, skipping auto-update...")
-    except Exception as e:
-        print(f"Update check failed: {e}, starting application anyway...")
-
 def main():
     """construct main app and run it"""
-    # Auto-update from git before starting
-    auto_update_from_git()
 
     app, _win = get_main_app(sys.argv)
     return app.exec_()
