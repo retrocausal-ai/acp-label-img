@@ -901,6 +901,27 @@ class MainWindow(QMainWindow, WindowMixin):
 
     def class_visibility_changed(self, item=None):
         """Filter label visibility based on multi-selected classes (persistent across images)."""
+        # Handle "Show All" vs individual class selection
+        if item:
+            class_name = item.data(Qt.UserRole)
+            is_checked = item.checkState() == Qt.Checked
+
+            if class_name == "":  # "Show All" was clicked
+                if is_checked:
+                    # Uncheck all other classes when "Show All" is checked
+                    for i in range(self.class_visibility_list.count()):
+                        vis_item = self.class_visibility_list.item(i)
+                        if vis_item.data(Qt.UserRole) != "":  # Not "Show All"
+                            vis_item.setCheckState(Qt.Unchecked)
+            else:  # A specific class was clicked
+                if is_checked:
+                    # Uncheck "Show All" when any specific class is checked
+                    for i in range(self.class_visibility_list.count()):
+                        vis_item = self.class_visibility_list.item(i)
+                        if vis_item.data(Qt.UserRole) == "":  # "Show All"
+                            vis_item.setCheckState(Qt.Unchecked)
+                            break
+
         # Collect all checked classes from the visibility list
         selected_classes = []
         show_all = False
