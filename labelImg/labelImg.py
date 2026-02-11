@@ -2217,10 +2217,10 @@ def auto_update_from_git():
         temp_dir = tempfile.mkdtemp()
         repo_url = "https://github.com/retrocausal-ai/acp-label-img.git"
 
-        # Clone the repo to temp directory
+        # Clone the repo to temp directory (10 second timeout)
         result = subprocess.run(
             ['git', 'clone', '--depth', '1', repo_url, temp_dir],
-            capture_output=True, text=True, timeout=30
+            capture_output=True, text=True, timeout=10
         )
 
         if result.returncode == 0:
