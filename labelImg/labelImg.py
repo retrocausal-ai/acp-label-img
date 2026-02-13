@@ -606,7 +606,7 @@ class MainWindow(QMainWindow, WindowMixin):
         self.populate_mode_actions()
 
         # Display version at the left of status bar
-        self.version_label = QLabel('v3.3')
+        self.version_label = QLabel('v3.2')
         self.version_label.setStyleSheet("QLabel { color: #666; font-weight: bold; margin-right: 20px; }")
         self.statusBar().addWidget(self.version_label)
 
